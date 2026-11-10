@@ -1,12 +1,12 @@
 import express from "express";
+import cors from "cors";
 import peliculasRouter from "./routes/peliculas.routes.js";
 import directoresRouter from "./routes/directores.routes.js";
 import cinesRouter from "./routes/cines.routes.js";
 import { logger } from "./middleware/logger.js";
-import cors from "cors";
 
 const app = express();
-const PORT = 3000;
+const PRODUCCION = process.env.NODE_ENV === "production";
 
 app.use(express.json());
 app.use(logger);
@@ -14,25 +14,34 @@ app.use(logger);
 app.use(
   cors({ origin: ["http://localhost:5173", "http://localhost:4173"] })
 );
-app.use(express.json());
 
+// Ruta de salud: sirve para comprobar que el servicio está vivo
 app.get("/", (req, res) => {
-  res.json({
-    nombre: "API de Cine",
-    estado: "funcionando"
-  });
+  res.json({ estado: "ok", servicio: "api-cine" });
 });
 
+// Rutas de las entidades de cine
 app.use("/api/peliculas", peliculasRouter);
 app.use("/api/directores", directoresRouter);
 app.use("/api/cines", cinesRouter);
 
+// Manejador de rutas no encontradas (404)
 app.use((req, res) => {
   res.status(404).json({
     error: "Ruta no encontrada"
   });
 });
 
+// Manejador de errores global: el detalle va a los LOGS, no al usuario
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({
+    error: PRODUCCION ? "Error interno del servidor" : err.message,
+  });
+});
+
+const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => {
-  console.log(`Servidor iniciado en http://localhost:${PORT}`);
+  console.log(`Servidor escuchando en el puerto ${PORT}`);
 });
