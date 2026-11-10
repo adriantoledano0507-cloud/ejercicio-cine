@@ -11,9 +11,12 @@ const PRODUCCION = process.env.NODE_ENV === "production";
 app.use(express.json());
 app.use(logger);
 
-app.use(
-  cors({ origin: ["http://localhost:5173", "http://localhost:4173"] })
-);
+// Configuración de CORS dinámica (admite local o variables de entorno para producción)
+const origenes = process.env.FRONTEND_URL
+  ? process.env.FRONTEND_URL.split(",").map((o) => o.trim())
+  : ["http://localhost:5173", "http://localhost:4173"];
+
+app.use(cors({ origin: origenes }));
 
 // Ruta de salud: sirve para comprobar que el servicio está vivo
 app.get("/", (req, res) => {
