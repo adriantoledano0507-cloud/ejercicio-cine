@@ -1,0 +1,20 @@
+Plaintext
+# Dependencias
+node_modules/
+
+# Compilación / Build
+dist/
+
+# Variables de entorno (excepto el ejemplo)
+.env
+.env.*
+!.env.example
+
+# Bases de datos locales SQLite
+*.db
+*.db-journal
+*.sqlite
+
+# Logs y sistema operativo
+*.log
+.DS_Store
